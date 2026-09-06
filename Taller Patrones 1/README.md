@@ -118,7 +118,7 @@ docker compose down
 
 ---
 
-## Simular tolerancia a fallos (pregunta 2 del PDF)
+## Simular tolerancia a fallos 
 
 Para observar cómo Dask reprograma tareas cuando un worker cae:
 
@@ -132,7 +132,7 @@ Para observar cómo Dask reprograma tareas cuando un worker cae:
 
 ---
 
-## Por qué Parquet y no CSV (pregunta 3 del PDF)
+## Por qué Parquet y no CSV 
 
 - **Compresión columnar:** Parquet almacena datos por columna, logrando
   compresiones de 5-10x vs CSV para datos tabulares.
@@ -143,14 +143,6 @@ Para observar cómo Dask reprograma tareas cuando un worker cae:
 - **Compatible con el ecosistema Big Data:** Spark, Hive, Athena, BigQuery
   leen Parquet nativo.
 
----
-
-## Variante alternativa: Docker-in-Docker (DinD)
-
-Existe también una variante donde un solo contenedor orquestador lanza los
-3 workers dinámicamente usando su propio daemon Docker interno (`--privileged`).
-Ver `entrypoint.sh` y la sección DinD del historial del proyecto. No se usa
-como entregable principal porque la rúbrica pide explícitamente Docker Compose.
 
 ---
 
