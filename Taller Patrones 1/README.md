@@ -18,7 +18,7 @@ Host
 ```
 
 Todos los servicios usan la misma imagen (`python:3.11-slim` + dependencias),
-resuelven nombres por la red `dask-cluster-net`, y comparten datos via el
+resuelven nombres por la red `dask-cluster-net`, y comparten datos vía el
 volumen `shared-data` montado en `/app/shared-data`.
 
 ---
@@ -94,7 +94,7 @@ Desde el dashboard puedes ver:
   Total filas procesadas : 300.000
   Anomalías customer_code: ~0     (< 1 %)
   Teléfonos sin dato     : ~43k   (~14 %)
-  Nulos amount imputados : ~9k    (~3 %)
+  Nulos amount imputados : ~9k    (~3 % → 0 % tras imputación)
 ```
 
 El resultado final queda en `shared-data/processed/` como archivos Parquet.
@@ -124,7 +124,7 @@ Para observar cómo Dask reprograma tareas cuando un worker cae:
 
 1. Mientras el pipeline corre, abre otra terminal y ejecuta:
    ```bash
-   docker stop taller-patrones-1-dask-worker-2-1
+   docker compose stop dask-worker-2
    ```
 2. Observa en el dashboard (`localhost:8787`) cómo el scheduler reprograma
    los chunks del worker-2 en los workers 1 y 3.
