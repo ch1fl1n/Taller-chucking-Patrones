@@ -1,0 +1,112 @@
+version: "3.8"
+
+networks:
+  dask-cluster-net:
+    driver: bridge
+
+volumes:
+  shared-data:
+
+services:
+
+  # ── Scheduler ────────────────────────────────────────────────────────────────
+  dask-scheduler:
+    build: .
+    command: ["dask", "scheduler", "--host", "0.0.0.0"]
+    ports:
+      - "8786:8786"   # IPC scheduler ↔ workers / client
+      - "8787:8787"   # Dashboard web
+    networks:
+      - dask-cluster-net
+    volumes:
+      - shared-data:/app/shared-data
+    mem_limit: 1g
+    cpus: 1.0
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import socket; s=socket.create_connection(('localhost',8786),2)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  # ── Worker 1 ─────────────────────────────────────────────────────────────────
+  dask-worker-1:
+    build: .
+    command:
+      - dask
+      - worker
+      - tcp://dask-scheduler:8786
+      - --nthreads
+      - "2"
+      - --memory-limit
+      - 1.5GB
+    networks:
+      - dask-cluster-net
+    volumes:
+      - shared-data:/app/shared-data
+    mem_limit: 1536m
+    cpus: 1.0
+    depends_on:
+      dask-scheduler:
+        condition: service_healthy
+
+  # ── Worker 2 ─────────────────────────────────────────────────────────────────
+  dask-worker-2:
+    build: .
+    command:
+      - dask
+      - worker
+      - tcp://dask-scheduler:8786
+      - --nthreads
+      - "2"
+      - --memory-limit
+      - 1.5GB
+    networks:
+      - dask-cluster-net
+    volumes:
+      - shared-data:/app/shared-data
+    mem_limit: 1536m
+    cpus: 1.0
+    depends_on:
+      dask-scheduler:
+        condition: service_healthy
+
+  # ── Worker 3 ─────────────────────────────────────────────────────────────────
+  dask-worker-3:
+    build: .
+    command:
+      - dask
+      - worker
+      - tcp://dask-scheduler:8786
+      - --nthreads
+      - "2"
+      - --memory-limit
+      - 1.5GB
+    networks:
+      - dask-cluster-net
+    volumes:
+      - shared-data:/app/shared-data
+    mem_limit: 1536m
+    cpus: 1.0
+    depends_on:
+      dask-scheduler:
+        condition: service_healthy
+
+  # ── Prefect Runner (orquestador del pipeline) ─────────────────────────────────
+  prefect-runner:
+    build: .
+    command: ["python", "pipeline.py"]
+    networks:
+      - dask-cluster-net
+    volumes:
+      - shared-data:/app/shared-data
+    environment:
+      - DASK_SCHEDULER_ADDRESS=tcp://dask-scheduler:8786
+      - NUM_ROWS=300000
+    depends_on:
+      dask-worker-1:
+        condition: service_started
+      dask-worker-2:
+        condition: service_started
+      dask-worker-3:
+        condition: service_started

@@ -1,0 +1,16 @@
+# Versiones fijadas para garantizar compatibilidad entre scheduler y workers.
+# Un mismatch de versión de dask/distributed provoca errores de serialización.
+
+# Dask y distributed deben tener la misma versión en los 5 contenedores
+dask==2024.2.0
+distributed==2024.2.0
+
+# Orquestación de flujos
+prefect==2.16.5
+
+# Procesamiento de datos
+pandas==2.2.1
+numpy==1.26.4
+
+# Formato columnar Parquet (requerido por ddf.to_parquet)
+pyarrow==15.0.2
